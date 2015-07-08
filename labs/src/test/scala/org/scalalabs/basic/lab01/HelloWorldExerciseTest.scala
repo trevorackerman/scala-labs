@@ -1,6 +1,6 @@
 package org.scalalabs.basic.lab01
 
-import java.lang.{ IllegalArgumentException => IAE }
+import java.lang.{ IllegalArgumentException ⇒ IAE }
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
@@ -26,10 +26,10 @@ class HelloWorldExerciseTest extends Specification {
       // JUnitSuite super class, which is part of the ScalaTest library. it behaves
       // as a traditional assertEquals but produces very clear assertion errors when
       // values don't match. In Scala, methods can be used as if they were operators.
-      "Hello from Scala" === HelloWorld.sayHello
+      HelloWorld.sayHello === "Hello from Scala"
     }
     "echo" in {
-      "Echo" === HelloWorld.echo("Echo")
+      HelloWorld.echo("Echo") === "Echo"
     }
   }
   /*==============================================================*/
@@ -46,7 +46,7 @@ class HelloWorldExerciseTest extends Specification {
   */
   "Scala Traits" should {
     "say hello" in {
-      "Hello World" === HelloWorldWithTraits.hello
+      HelloWorldWithTraits.hello === "Hello World"
     }
   }
 
@@ -66,7 +66,7 @@ class HelloWorldExerciseTest extends Specification {
   "Scala Companion Object" should {
     "serve as factory" in {
       val helloWorldInstance = HelloWorldClassAndObject("Hello")
-      "Hello" === helloWorldInstance.echo
+      helloWorldInstance.echo === "Hello"
     }
   }
 

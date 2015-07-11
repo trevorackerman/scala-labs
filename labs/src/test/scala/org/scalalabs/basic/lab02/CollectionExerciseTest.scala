@@ -2,11 +2,11 @@ package org.scalalabs.basic.lab02
 
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
-import java.lang.{ IllegalArgumentException => IAE }
+import java.lang.{ IllegalArgumentException ⇒ IAE }
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import ListManipulationExercise02.{ Person => _ }
+import ListManipulationExercise02.{ Person ⇒ _ }
 import CollectionExercise02.Person
 /**
  * This Lab contains exercises where the usage of
@@ -37,8 +37,8 @@ class CollectionExerciseTest extends Specification {
       val erik = new Person(24, "Erik")
       val susy = new Person(40, "Susy")
 
-      val result = CollectionExercise02.groupAdultsPerAgeGroup(Seq(jack, duke, jeniffer, erik, susy))
-      Map(20 -> Seq(erik), 30 -> Seq(duke, jeniffer), 40 -> Seq(susy)) ==== result
+      val result = CollectionExercise02.groupAdultsPerAgeGroup(Seq(jack, jeniffer, duke, erik, susy))
+      result ==== Map(10 -> Seq(jack), 20 -> Seq(erik), 30 -> Seq(duke, jeniffer), 40 -> Seq(susy))
     }
   }
 
@@ -64,8 +64,8 @@ class CollectionExerciseTest extends Specification {
   "CollectionExercise05" should {
     "use foldLeft for common higher order functions" in {
       val input = Seq(1, 2, 3)
-      input.filter(_ % 2 == 0) ==== CollectionExercise05.filterWithFoldLeft(input)
-      input.groupBy(_ % 2 == 0) ==== CollectionExercise05.groupByWithFoldLeft(input)
+      CollectionExercise05.filterWithFoldLeft(input) ==== input.filter(_ % 2 == 0)
+      CollectionExercise05.groupByWithFoldLeft(input) ==== input.groupBy(_ % 2 == 0)
     }
   }
 

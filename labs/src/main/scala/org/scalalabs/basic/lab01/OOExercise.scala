@@ -52,6 +52,10 @@ class Euro(val euro:Int, val cents:Int = 0) extends Currency("EUR") with Ordered
     Euro.fromCents(inCents * factor)
   }
 
+  def /(factor:Int) = {
+    new Euro(0, 0)
+  }
+
   override def toString = symbol +": " + euro + "," + (if (cents > 0) "%02d".format(cents) else "--")
 
   override def compare(that: Euro): Int = inCents - that.inCents

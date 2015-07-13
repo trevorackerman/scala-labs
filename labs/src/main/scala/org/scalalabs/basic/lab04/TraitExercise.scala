@@ -23,13 +23,13 @@ class SimpleLogger(clazz: String) {
   /**
    * Logs debug
    */
-  def debug(msg: => Any) = log(Debug, msg)
+  def debug(msg: ⇒ Any) = log(Debug, msg)
   /**
    * Log info
    */
-  def info(msg: => Any) = log(Info, msg)
+  def info(msg: ⇒ Any) = log(Info, msg)
 
-  private def log(level: Level, msg: => Any) = {
+  private def log(level: Level, msg: ⇒ Any) = {
     def isLevelEnabled(level: Level) = logConfig.getOrElse(level, false)
     if (isLevelEnabled(level)) {
       val logMsg = f"$level%-7s $clazz $msg"

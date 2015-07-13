@@ -2,8 +2,9 @@ package org.scalalabs.basic.lab02
 
 import org.scalatest.junit.JUnitSuite
 import org.junit.Test
-import java.lang.{ IllegalArgumentException => IAE }
+import java.lang.{ IllegalArgumentException ⇒ IAE }
 import org.junit.runner.RunWith
+import org.specs2.matcher.Hamcrest
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import ListManipulationExercise02._
@@ -20,7 +21,7 @@ import ListManipulationExercise02._
  */
 
 @RunWith(classOf[JUnitRunner])
-class ListManipulationExercise02Test extends Specification {
+class ListManipulationExercise02Test extends Specification with Hamcrest {
 
   "A Scala List" should {
     "find max int in list" in {
@@ -31,8 +32,8 @@ class ListManipulationExercise02Test extends Specification {
     "calc sum of same positioned elements in two lists" in {
       List(2, 8, 14) === sumOfTwo(List(1, 5, 9), List(1, 3, 5))
       //if one of the lists is empty return the ones with values
-      List(1, 2, 3) === sumOfTwo(List(1, 2, 3), List())
-      List(1, 2, 3) === sumOfTwo(List(), List(1, 2, 3))
+      sumOfTwo(List(1, 2, 3), List()) === List(1, 2, 3)
+      sumOfTwo(List(), List(1, 2, 3)) === List(1, 2, 3)
     }
 
     "calc sum of same positioned elements in many lists" in {
@@ -50,9 +51,18 @@ class ListManipulationExercise02Test extends Specification {
       val peter2 = Person(19, "Peter2", "Petersson")
       val jason = Person(21, "Jason", "Jasonsson")
 
-      val result = separateTheMenFromTheBoys(List(jason, anton1, anton2, anton3, peter1, peter2))
+      Seq(1, 2, 3, 4) must contain(allOf(2, 4))
 
-      List(List("Anton1", "Anton2", "Peter1"), List("Anton3", "Peter2", "Jason")) === result
+      val result = separateTheMenFromTheBoys(List(jason, anton1, anton2, anton3, peter1, peter2))
+      // The following assertion ain't so grand, ordering isn't required
+//      result === List(List("Anton1", "Anton2", "Peter1"), List("Anton3", "Peter2", "Jason"))
+
+      // The following is *slightly* better. Let's face it though, this isn't a very good data
+      // structure because when you just look at result it isn't clear why there are two lists
+      // all of the age data is gone and there isn't anything about "result" that says here's
+      // a list of people < 18 and here's a list of the rest of the people.
+      result(0) must containTheSameElementsAs(List("Anton1", "Anton2", "Peter1"))
+      result(1) must containTheSameElementsAs(List("Anton3", "Peter2", "Jason"))
     }
   }
 }

@@ -17,8 +17,8 @@ class FunctionsExerciseTest extends Specification {
         4
       }
       //uncomment next line
-      //4 ==== FunctionsExercise01.measure(block)
-      FunctionsExercise01.printed must beMatching ("""The execution took: ([1-9][0-9]) ms""")
+      4 ==== FunctionsExercise01.measure(block)
+      FunctionsExercise01.printed must beMatching("""The execution took: ([1-9][0-9]) ms""")
     }
   }
   "FunctionsExercise02" should {
@@ -38,10 +38,10 @@ class FunctionsExerciseTest extends Specification {
       anotherClosable.closed must beFalse
 
       val greeting = FunctionsExercise02.using(closable) {
-        c => c sayHello ("John")
+        c ⇒ c sayHello ("John")
       }
       val anotherGreeting = FunctionsExercise02.using(anotherClosable) {
-        c => c sayHello ("John")
+        c ⇒ c sayHello ("John")
       }
 
       closable.closed must beTrue

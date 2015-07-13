@@ -29,7 +29,12 @@ object RecursionPatternMatchingExercise {
    * checkValuesIncrease(Seq(1,2,2)) == false
    */
   def checkValuesIncrease(seq: Seq[Int]): Boolean = {
-    error("fix me")
+    seq match {
+      case _ if (seq.isEmpty) => false
+      case _ if (seq.size == 1) => true
+      case _ if (seq.size == 2) => seq(0) < seq(1)
+      case _ => seq(0) < seq(1) && checkValuesIncrease(seq.drop(1))
+    }
   }
 
   /**
@@ -37,7 +42,13 @@ object RecursionPatternMatchingExercise {
    * List(1,1,2,3,1,1) -> List(1,1), List(2), List(3), List(1,1)
    */
   def groupConsecutive[T](in: List[T]): List[List[T]] = {
-    error("fix me")
+    in match {
+      case Nil => Nil
+      case h::t => {
+        val consecutive = in takeWhile(_ == h)
+        consecutive :: groupConsecutive(in drop consecutive.length)
+      }
+    }
   }
 
   /**
@@ -45,7 +56,7 @@ object RecursionPatternMatchingExercise {
    * List(1,1,2,3,1,1) -> List(1,1,1,1), List(2), List(3)
    */
   def groupEquals[T](in: List[T]): List[List[T]] = {
-    error("fix me")
+    in.groupBy(i => i).toList.map { case (k, v) => v }
   }
 
   /**
@@ -53,7 +64,7 @@ object RecursionPatternMatchingExercise {
    * List(1,1,2,3,1,1) -> List(1,2,3)
    */
   def compress[T](in: List[T]): List[T] = {
-    error("fix me")
+    in.distinct
   }
 
   /**
@@ -61,7 +72,7 @@ object RecursionPatternMatchingExercise {
    * List(1,1,2,3,1,1) -> List((4,1),(1,2),(1,3))
    */
   def amountEqualMembers[T](in: List[T]): List[(Int, T)] = {
-    error("fix me")
+    in.groupBy(i => i).toList.map { case (k, v) => ( v.length, v(0) ) }
   }
 
   /**
@@ -69,7 +80,7 @@ object RecursionPatternMatchingExercise {
    * List(List(1,2,3), List('A, 'B, 'C), List('a, 'b, 'c)) -> List(List(1, 'A, 'a), List(2, 'B, 'b), List(3, 'C, 'c))
    */
   def zipMultiple(in: List[List[_]]): List[List[_]] = {
-    error("fix me")
+    for (j <- in(0)) yield for (l <- in) yield l(in(0).indexOf(j))
   }
 
   /**
@@ -77,7 +88,12 @@ object RecursionPatternMatchingExercise {
    * List(List(1), List('A, 'B, 'C), List('a, 'b)) -> List(List(1, 'A, 'a))
    */
   def zipMultipleWithDifferentSize(in: List[List[_]]): List[List[_]] = {
-    error("fix me")
+    val sizes = for (l <- in)
+          yield l.size
+    val shortest = sizes.min
+    val shortenedLists = for (l <- in) yield l.dropRight(l.size - shortest)
+
+    return zipMultiple(shortenedLists)
   }
 
 }

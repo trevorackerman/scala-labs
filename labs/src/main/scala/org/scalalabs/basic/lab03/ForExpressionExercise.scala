@@ -1,6 +1,7 @@
 package org.scalalabs.basic.lab03
 
 import sys._
+
 /**
  * This exercise introduces you to Scala's for expression.
  *
@@ -44,8 +45,15 @@ object ForExpressionExercise01 {
    * @param amountOfDigits amount of digits from which to calculate the largest palindrome
    * @return largest palindrome.
    */
-  def largestPalindromWithForExpression(amountOfDigits: Int): Int = {
-    error("Fix me")
+  def largestPalindromeWithForExpression(amountOfDigits: Int): Int = {
+    val (fromNumber, toNumber) = getFromAndTo(amountOfDigits)
+    val palindromes = for {
+      i <- fromNumber to toNumber
+      j <- i to toNumber
+      prod = i * j
+      if prod.toString == prod.toString.reverse
+    } yield prod
+    palindromes.max
   }
 
   /**
@@ -56,7 +64,10 @@ object ForExpressionExercise01 {
    * @param amountOfDigits amount of digits from which to calculate the largest palindrome
    * @return largest palindrome.
    */
-  def largestPalindromWithHigherOrderFunctions(amountOfDigits: Int): Int = {
-    error("Fix me")
+  def largestPalindromeWithHigherOrderFunctions(amountOfDigits: Int): Int = {
+    val (fromNumber, toNumber) = getFromAndTo(amountOfDigits)
+    (fromNumber to toNumber).flatMap(i => i to toNumber map (j => i * j))
+      .filter(p => p.toString == p.toString.reverse)
+      .max
   }
 }

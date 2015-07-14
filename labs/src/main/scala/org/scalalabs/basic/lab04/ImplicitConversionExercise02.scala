@@ -1,6 +1,7 @@
 package org.scalalabs.basic.lab04
 
 import org.joda.time.{ Duration, DateTime }
+import org.scalalabs.basic.lab04.Exercise03.{EuroJsonMarshallerHelper, JsonConverter}
 import scala.math._
 import language.implicitConversions
 import language.higherKinds
@@ -9,8 +10,12 @@ import org.json4s.JsonDSL._
 import org.json4s.native.JsonMethods._
 import scala.util.control._
 
-case class Euro(val euros: Int, val cents: Int) {
+case class Euro(val euros: Int, val cents: Int) extends Ordered[Euro] {
   lazy val inCents: Int = euros * 100 + cents
+
+  override def compare(that: Euro): Int = {
+    inCents - that.inCents
+  }
 }
 
 object Euro {
@@ -31,7 +36,14 @@ object Euro {
  * 2 euros >45< cents
  */
 object Exercise01 {
+  implicit def intToEuroBuilder(i: Int) = new EuroBuilder(i)
+  implicit def euroBuilderToEuro(eb: EuroBuilder) = Euro.fromCents(eb.inCents)
 
+  class EuroBuilder(val inCents: Int) {
+    def euros = new EuroBuilder(inCents * 100)
+    def cents = Euro.fromCents(inCents)
+    def apply(otherCents: Int) = new EuroBuilder(otherCents + inCents)
+  }
 }
 
 /**
@@ -47,28 +59,38 @@ object Exercise02 {
  * Exercise 3:
  * Implement a type class pattern to convert domain objects to and from json.
  * Take a look at the already defined type class trait @see JsonConverter.
- * 1. Implement the methods of the JsonCoverter object below that converts domain objects to and from json making use of the JsonConverter type class trait.
+ *
+ * 1. Implement the methods of the JsonConverter object below that converts domain objects
+ *    to and from json making use of the JsonConverter type class trait.
+ *
  * 2. Provide an implementation of the JsonConverter type class trait for the Euro class.
+ *
  * Place the implementation in the Euro's companion object so that the implicit resolution requires no import.
  * For marshalling and unmarshalling json make use of the @see EuroJsonMarshallerHelper
  */
 object Exercise03 {
-  object JsonConverter {
-    def convertToJson[T /**provide context bound*/ ](t: T): JValue = {
-      ???
-    }
-    def parseFromJson[T /**provide context bound*/ ](json: JValue): T = {
-      ???
-    }
-  }
 
-  /**
-   * Only used for Exercise03!
-   */
   trait JsonConverter[T] {
     def toJSON(t: T): JValue
     def fromJson(json: JValue): T
   }
+
+  // Companion Object
+  object JsonConverter {
+
+    implicit object EuroJsonConverter extends JsonConverter[Euro] {
+      def toJSON(e: Euro): JValue = EuroJsonMarshallerHelper.marshal(e)
+      def fromJson(json: JValue): Euro = EuroJsonMarshallerHelper.unmarshal(json)
+    }
+
+    def convertToJson[T](t: T)(implicit converter: JsonConverter[T]): JValue = {
+      converter.toJSON(t)
+    }
+    def parseFromJson[T](json: JValue)(implicit converter: JsonConverter[T]): T = {
+      converter.fromJson(json)
+    }
+  }
+
   /**
    * Only used for Exercise03!
    */

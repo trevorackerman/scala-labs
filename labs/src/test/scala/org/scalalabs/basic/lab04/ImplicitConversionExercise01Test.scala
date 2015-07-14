@@ -18,37 +18,36 @@ class ImplicitConversionExercise01Test extends Specification with DeactivatedTim
 
   "Exercise01" should {
     "convert string to list" in {
-      List('H', 'e', 'l', 'l', 'o') ==== stringToList("Hello")
+        stringToList("Hello") ==== List('H', 'e', 'l', 'l', 'o')
     }
   }
 
   "Exercise02" should {
     "convert celsius to fahrenheit" in {
-      skipped("Uncomment and fix me")
-      //      val c = new Celsius(10)
-      //      val f = new Fahrenheit(30)
-      //      "It's 10.0 degree celsius" ==== TemperaturPrinter.printCelsius(c)
-      //      "It's -1.11 degree celsius" ==== TemperaturPrinter.printCelsius(f)
-      //      "It's 50.0 fahrenheit" ==== TemperaturPrinter.printFahrenheit(c)
-      //      "It's 30.0 fahrenheit" ==== TemperaturPrinter.printFahrenheit(f)
+            val c = new Celsius(10)
+            val f = new Fahrenheit(30)
+            TemperaturePrinter.printCelsius(c) ==== "It's 10.0 degree celsius"
+            TemperaturePrinter.printCelsius(f) ==== "It's -1.11 degree celsius"
+            TemperaturePrinter.printFahrenheit(c) ==== "It's 50.0 fahrenheit"
+            TemperaturePrinter.printFahrenheit(f) ==== "It's 30.0 fahrenheit"
     }
   }
 
   "Exercise03" should {
     "add camelCase method to String" in {
-      skipped("Uncomment and fix me")
-      //      "camelCaseMe" ==== "camel case me".camelCase
+            "camelCaseMe" ==== "camel case me".camelCase
     }
+
+
   }
 
   "Exercise04" should {
     "have a working time DSL" in {
-      skipped("Uncomment and fix me")
-      //      import TimeUtils._
-      //      println(1 days)
-      //      println((1 days) + (2 hours))
-      //      (1 days).millis ==== new Duration(24L * 60L * 60L * 1000L).getMillis()
-      //      (1.days + 2.hours).millis ==== new Duration(26L * 60L * 60L * 1000L).getMillis()
+            import TimeUtils._
+            println(1 days)
+            println((1 days) + (2 hours))
+            (1 days).millis ==== new Duration(24L * 60L * 60L * 1000L).getMillis()
+            (1.days + 2.hours).millis ==== new Duration(26L * 60L * 60L * 1000L).getMillis()
     }
   }
 }

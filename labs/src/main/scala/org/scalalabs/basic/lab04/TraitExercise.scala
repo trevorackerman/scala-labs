@@ -18,18 +18,17 @@ object Level extends Enumeration {
   val Debug, Info = Value
 }
 import Level._
-class SimpleLogger(clazz: String) {
-  import SimpleLogger._
-  /**
-   * Logs debug
-   */
-  def debug(msg: ⇒ Any) = log(Debug, msg)
-  /**
-   * Log info
-   */
-  def info(msg: ⇒ Any) = log(Info, msg)
 
-  private def log(level: Level, msg: ⇒ Any) = {
+trait Loggable {
+  var logConfig = Map(Debug -> false, Info -> true)
+
+  var logHistory = Seq.empty[String]
+  def clearHistory() = logHistory = Seq.empty[String]
+
+  def debug(msg: => Any) = log(Debug, msg)
+  def info(msg: => Any) = log(Info, msg)
+
+  def log(level: Level, msg: ⇒ Any) = {
     def isLevelEnabled(level: Level) = logConfig.getOrElse(level, false)
     if (isLevelEnabled(level)) {
       val logMsg = f"$level%-7s $clazz $msg"
@@ -37,31 +36,15 @@ class SimpleLogger(clazz: String) {
       println(logMsg)
     }
   }
+
+  var clazz: String = getClass().getName()
 }
 
-object SimpleLogger {
-
-  var logHistory = Seq.empty[String]
-  def clearHistory() = logHistory = Seq.empty[String]
-  var logConfig = Map(Debug -> false, Info -> true)
-
-  def apply(clazz: String) = new SimpleLogger(clazz)
-}
-
-class DummyService {
-
-  /**
-   * the logger must be removed.
-   * Move it to a Loggable trait that can be mix-in in any class that needs logging.
-   * Finally, mix-in the Loggable trait in this class in order to log the statments
-   * in the sendSomething method
-   */
-  val logger = SimpleLogger(getClass().getName())
-
+class DummyService extends Loggable {
   def sendSomething(msg: Any) = {
-    logger.debug("Prepare sending")
-    logger.info(s"$msg successfully sent")
-    logger.debug("Done")
+    debug("Prepare sending")
+    info(s"$msg successfully sent")
+    debug("Done")
   }
 }
 

@@ -14,7 +14,22 @@ import org.scalatest.junit._
  * - Happy flow (divider is > 0)
  * - Alternative flow (divider is <= 0)
  */
-//@RunWith(classOf[JUnitRunner])
-class ScalaTestExerciseTest {
+@RunWith(classOf[JUnitRunner])
+class ScalaTestExerciseTest extends FlatSpec with Matchers {
+  "A Euro" should "correctly divide by a positive integer" in {
+    val res = new Euro(1, 50) / 3
+    res.euro should be (0)
+    res.cents should be (50)
+  }
 
+  it should "throw an IllegalArgumentException for an integer less than 1" in {
+    try {
+      val res = new Euro(1, 50) / 0
+      fail("Should have thrown Illegal Argument Exception")
+    }
+    catch {
+      case e: IllegalArgumentException => println("illegal arg. exception");
+    }
+
+  }
 }

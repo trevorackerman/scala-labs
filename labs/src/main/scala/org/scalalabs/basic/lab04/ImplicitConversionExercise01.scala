@@ -26,31 +26,29 @@ import language.higherKinds
 object ImplicitConversionExercise01 {
 
   object Exercise01 {
-
-    def stringToList(s: String): List[Char] = {
-      //built in: our String will be converted to Scala's RichString, because this is defined a Scala
-      //object called Predef. This is imported by the compiler by default.
-      //
-      List[Char]()
+    implicit def stringToList(s: String): List[Char] = {
+      s.toCharArray.toList
     }
-
   }
 
   /**============================================================================ */
 
   object Exercise02 {
     class Celsius(val degree: Double)
-    class Fahrenheit(val fahrenheit: Double)
+    class Fahrenheit(val degree: Double)
 
-    object TemperaturPrinter {
+    object TemperaturePrinter {
       def printCelsius(c: Celsius): String = {
         "It's " + c.degree + " degree celsius"
       }
 
       def printFahrenheit(f: Fahrenheit): String = {
-        "It's " + f.fahrenheit + " fahrenheit"
+        "It's " + f.degree + " fahrenheit"
       }
     }
+    
+    implicit def fahrenheitToCelsius(f: Fahrenheit) = new Celsius(ConversionHelper.fahrenheit2CelsiusConversion(f.degree))
+    implicit def celsiusToFahrenheit(c: Celsius) = new Fahrenheit(ConversionHelper.celsius2FahrenheitConversion(c.degree))
 
     /**
      * Use this conversion helper to convert fahrenheit values to degree celsius values
@@ -72,23 +70,31 @@ object ImplicitConversionExercise01 {
   // Write here an implict class that adds a camelCase method to string.
 
   object Exercise03 {
+    implicit def camelCase(s: String) = new CamelCaseString(s)
+  }
 
+  class CamelCaseString(val s: String) {
+    def camelCase = {
+      s.split(" ").reduceLeft((a, b) => a + b.capitalize)
+    }
   }
 
   /**============================================================================ */
   object Exercise04 {
 
     object TimeUtils {
+
+      implicit def intDuration(v: Int) = DurationBuilder(v.toLong)
+
+      implicit def richDuration(d: Duration) = RichDuration(d)
+
       case class DurationBuilder(timeSpan: Long) {
+        def ll = timeSpan
         def now = new DateTime().getMillis()
-
-        //    def seconds = TODO your implementation here...
-
-        //    def minutes = TODO your implementation here...
-
-        //    def hours = TODO your implementation here...
-
-        //    def days = TODO your implementation here...
+        def seconds = new Duration(TimeUtils.seconds(ll))
+        def minutes = new Duration(TimeUtils.minutes(ll))
+        def hours = new Duration(TimeUtils.hours(ll))
+        def days = new Duration(TimeUtils.days(ll))
       }
 
       //TODO define some implicits that convert integers and longs to durations and builders to make it all work

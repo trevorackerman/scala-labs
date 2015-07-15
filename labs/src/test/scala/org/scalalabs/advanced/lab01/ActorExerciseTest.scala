@@ -18,7 +18,7 @@ class ActorExerciseTest extends JUnitSuite {
     val echo = new EchoActor
     echo.start
     //the !? method sends a message to the actor and wait (synchronously) for a reply, within the specified timeout.
-    assertEquals("Got message: Hello EchoActor", (echo !? (10, "Hello EchoActor")) getOrElse (""))
+    assertEquals("Got message: Hello EchoActor", (echo !? (10, "Hello EchoActor")) getOrElse ("pppt"))
   }
 
   @Test
@@ -58,8 +58,8 @@ class ActorExerciseTest extends JUnitSuite {
     chatServer ! AnonymousMessage("message2")
 
     val msg: Option[List[String]] = chatServer !? (20, ChatLog) match {
-      case Some(Messages(msg)) => Some(msg)
-      case _ => None
+      case Some(Messages(msg)) ⇒ Some(msg)
+      case _ ⇒ None
     }
     assertEquals(List("message2", "message1"), msg.getOrElse(Nil))
   }
@@ -79,21 +79,21 @@ class ActorExerciseTest extends JUnitSuite {
     Thread.sleep(500)
 
     val msg1: Option[List[String]] = client1 !? (20, ChatLog) match {
-      case Some(Messages(msg)) => Some(msg)
-      case _ => None
+      case Some(Messages(msg)) ⇒ Some(msg)
+      case _ ⇒ None
     }
     assertEquals(List("client1: first message"), msg1.getOrElse(Nil))
 
     val msg2: Option[List[String]] = client2 !? (20, ChatLog) match {
-      case Some(Messages(msg)) => Some(msg)
-      case _ => None
+      case Some(Messages(msg)) ⇒ Some(msg)
+      case _ ⇒ None
     }
 
     assertEquals(List("client2: second message"), msg2.getOrElse(Nil))
 
     val msg: Option[List[String]] = chatServer !? (20, ChatLog) match {
-      case Some(Messages(msg)) => Some(msg)
-      case _ => None
+      case Some(Messages(msg)) ⇒ Some(msg)
+      case _ ⇒ None
     }
     assertEquals(List("client2: second message", "client1: first message"), msg.getOrElse(Nil))
 
@@ -102,7 +102,7 @@ class ActorExerciseTest extends JUnitSuite {
 
     Thread.sleep(500)
 
-    val msg3: Option[List[String]] = client2 !? ChatLog match {
+    val msg3: Option[List[String]] = client2 !? (20, ChatLog) match {
       case Some(Messages(msg)) => Some(msg)
       case _ => None
     }

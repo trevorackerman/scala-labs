@@ -50,6 +50,7 @@ class PatternMatchingExcerciseTest extends JUnitSuite {
   def regexLogLineMatchTest() {
     val matchResult = "2010-04-08T04:08:05.889Z;PRF;server1;1004080608005100002;Processing took 200 ms" match {
       case PerfLogLineRE(date, server, threadId, ms) => (date :: server :: threadId :: ms :: Nil).mkString("|")
+      case PerfLogLineRE(_*) => "okay"
       case _ => "No match"
     }
     assert(matchResult == "2010-04-08T04:08:05.889Z|1|1004080608005100002|200")

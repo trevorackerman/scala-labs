@@ -29,9 +29,22 @@ object PatternMatchingExercise {
    * -> MyNotes txt
    */
   object FileName {
+    var fileName = ""
+    var extension = ""
+
     def unapply(name: String): Option[(String, String)] = {
-      //TODO implement simple argument extractor
-      None
+      if (name.contains(".")) {
+        val tokens = name.split("\\.")
+        Some((tokens(0), tokens(1)))
+      }
+      else {
+        None
+      }
+    }
+
+    def apply(n: String, e: String): Unit = {
+      fileName = e
+      extension = e
     }
   }
 
@@ -45,8 +58,7 @@ object PatternMatchingExercise {
    */
   object Path {
     def unapplySeq(path: String): Option[Seq[String]] = {
-      //TODO implement variable argument extractor
-      None
+      return Some(path.split("/").filter(p => !p.isEmpty).reverse)
     }
   }
 
@@ -57,8 +69,14 @@ object PatternMatchingExercise {
    * -> AdvancedPatternMatchingTest
    */
   def fileNameRetriever(path: String) = {
-    //TODO implement
-    ""
+    path match {
+      case Path(first, _*) =>
+        first match {
+          case FileName(name, extension) => name
+          case _ => "No FileName match"
+        }
+      case _ => "No Path match"
+    }
   }
 
   /**
@@ -73,7 +91,7 @@ object PatternMatchingExercise {
    * E.g.:
    * 2010-04-08T04:08:05.889Z;PRF;server1;1004080608005100002;Processing took 200 ms
    */
-  val PerfLogLineRE = """TODO_IMPLEMENT_REGEXP""".r
+  val PerfLogLineRE = "(\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z).*server(\\d+);(\\d+);.* (\\d+) ms".r
 
   /**
    * Define a regexp and use the 'loop' function to iterate over a piece of text
@@ -83,17 +101,35 @@ object PatternMatchingExercise {
    * -> 040-2920029, 0402920029, (040)2920029
    */
   def phoneNumberRetriever(phoneNumberText: String): List[String] = {
-    //TODO implement
-    List[String]()
+    var result = List[String]()
+    for (m <- PhoneNumberRE.findAllIn(phoneNumberText).matchData) {
+      result = (m group 1) :: result
+    }
+    result.reverse
   }
 
-  val PhoneNumberRE = """TODO_IMPLEMENT_REGEXP""".r
+  val PhoneNumberRE = "[^\\d\\(]+([\\(\\d\\)-]+)|(\\d+)\\D*".r
 
   /**
    * ***********************************************************************
    * XML MATCHING
    * ***********************************************************************
    */
+
+
+  /*------------------------------------------
+   * XML MATCHING HELPER METHODS
+   ------------------------------------------*/
+
+  private def getXML = XML.load(this.getClass.getResourceAsStream("/movies.xml"))
+
+  private def movieNodeProcessor(filter: (Node, MList[String]) => Any): List[String] = {
+    var capturer = new MList[String]()
+    for (movieNode ← getXML \\ "Movie" \ "_") {
+      filter(movieNode, capturer)
+    }
+    capturer.toList
+  }
 
   /**
    * Take a look at the movies.xml. Use xml matching to extract all genres.
@@ -106,8 +142,12 @@ object PatternMatchingExercise {
    * method to implement your solution.
    */
   def filterAllGenres(): List[String] = {
-    //TODO implement
-    List[String]()
+    def genreFilter(node: Node,mList: MList[String]): Unit = {
+      for (genreNode <- node \\ "Genre") {
+        mList += genreNode.text
+      }
+    }
+    movieNodeProcessor(genreFilter)
   }
 
   /**
@@ -128,8 +168,12 @@ object PatternMatchingExercise {
    * method to implement your solution.
    */
   def filterActorsStartingWithG(): List[String] = {
-    //TODO implement
-    List[String]()
+    def gActorFilter(node: Node,mList: MList[String]): Unit = {
+      for (gActorNode <- (node \\ "Actors" \\ "Actor").filter(n => n.text.startsWith("G"))) {
+        mList += gActorNode.text
+      }
+    }
+    movieNodeProcessor(gActorFilter)
   }
 
   /**
@@ -145,8 +189,12 @@ object PatternMatchingExercise {
    * method to implement your solution.
    */
   def filterTop10Titles(): List[String] = {
-    //TODO implement
-    List[String]()
+    def top10Filter(node: Node,mList: MList[String]): Unit = {
+      for (top10Node <- node \\ "Title" filter (n => n.attribute("top10").get(0).text == "true")) {
+          mList += top10Node.text
+      }
+    }
+    movieNodeProcessor(top10Filter)
   }
 
   /**
@@ -157,26 +205,13 @@ object PatternMatchingExercise {
    * textNodeMatcher method.
    */
   def recursivelyExtractAllTextNodes(): List[String] = {
-    //TODO implement using the recursive textNodeMatcher method
-    List[String]()
+    movieNodeProcessor(textNodeMatcher)
   }
 
-  private def textNodeMatcher(node: NodeSeq, capturer: MList[String]): Unit = {
-    //TODO implement recursion
+  private def textNodeMatcher(nodeSeq: NodeSeq, capturer: MList[String]): Unit = {
+    for (node <- nodeSeq filter (n => n.label == "#PCDATA" && !n.text.trim.isEmpty)) capturer += node.text
+    for (node <- nodeSeq) textNodeMatcher(node.nonEmptyChildren, capturer)
   }
 
-  /*------------------------------------------
-   * XML MATCHING HELPER METHODS
-   ------------------------------------------*/
-
-  private def getXML = XML.load(this.getClass.getResourceAsStream("/movies.xml"))
-
-  private def movieNodeProcessor(filter: (Node, MList[String]) => Any): List[String] = {
-    var capturer = new MList[String]()
-    for (movieNode <- getXML \\ "Movie" \ "_") {
-      filter(movieNode, capturer)
-    }
-    capturer.toList
-  }
 
 }

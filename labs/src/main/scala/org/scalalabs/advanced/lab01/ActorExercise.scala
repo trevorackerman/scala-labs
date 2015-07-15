@@ -18,7 +18,12 @@ class EchoActor extends Actor {
   /**
    * implement the act method so that it replies any message back to the sender
    */
-  def act = exit //TODO
+  def act() = {
+    receive {
+      case anything =>
+        sender ! "Got message: " + anything
+    }
+  }
 }
 
 sealed trait CountEvent
@@ -37,7 +42,18 @@ class Counter extends Actor {
    * <li> replies the current value of the counter back tot the sender.
    * </ul>
    */
-  def act = exit //TODO
+  def act = {
+    while (true) {
+      receive {
+        case Inc =>
+          value = value + 1
+        case Dec =>
+          value = value - 1
+        case Curr =>
+          sender ! value
+      }
+    }
+  }
 }
 
 /**
@@ -72,14 +88,24 @@ class SimpleChatClient extends Actor {
    * Implement the act method so that it stores any message in a private list when it receives the AnonymousMessage class.
    * The client should send back all messages it currently has when it receives a ChatLog message.
    */
-  def act = exit //TODO
+  def act = {
+    while (true) {
+      receive {
+        case Message(from, msg) =>
+          messages = msg :: messages
+        case ChatLog =>
+          sender ! Messages(messages)
+      }
+
+    }
+  }
 }
 
 /**
  * The self annotation indicates that this ChatServer should be mixed in with the ChatMgt and the MessageMgt traits.
  */
 trait ChatServer extends Actor {
-  self: ChatMgt with MessageMgt =>
+  self: ChatMgt with MessageMgt ⇒
 
   protected def messageMgt: PartialFunction[Any, Unit]
 
@@ -89,7 +115,15 @@ trait ChatServer extends Actor {
    * The chatserver is repsonsible for two things: message management and chat management.
    *
    */
-  def act = exit //TODO
+  def act = {
+    while(true) {
+      receive {
+        case Add(who) => chatMgt(Add(who))
+        case Remove(who) => chatMgt(Remove(who))
+        case anythingElse => messageMgt(anythingElse)
+      }
+    }
+  }
 }
 
 trait ChatClientOps extends Actor {
@@ -102,29 +136,35 @@ trait ChatClientOps extends Actor {
    * Implement this method so that the given message is posted to the server. Should be wrapped in a Message class.
    */
   def post(message: String) = {
-    println("Client " + name + " posts message " + message + " to server")
-    //TODO
+    server ! Message(name, message)
   }
 
   /**
    * Implement this method so that the given message is broadcast to the server. Should be wrapped in a BroadcastMessage class.
    */
   def broadCast(message: String) = {
-    println("Client " + name + " posts broadcast message " + message + " to server")
-    server ! BroadcastMessage(name, name + ": " + message)
+    server ! BroadcastMessage(name, message)
   }
 
   def login: Unit = {
+    server ! Add(this)
     this.start
-    //TODO add this client to the chatServer
   }
 
   /**
    * In the act method the client should add any AnonymousMessage it receives to its private chatLog
    * When it recieves a ChatLog message, it should reply its chatLog to the sender, wraped inside a Messages class.
    */
-  def act = exit //TODO
-
+  def act = {
+    while (true) {
+      receive {
+        case Message(from, msg) =>
+          chatLog = (from + ": " + msg) :: chatLog
+        case ChatLog =>
+          sender ! Messages(chatLog)
+      }
+    }
+  }
 }
 
 case class ChatClient(val name: String, val server: Actor) extends ChatClientOps
@@ -135,7 +175,7 @@ case class ChatClient(val name: String, val server: Actor) extends ChatClientOps
  * The self-type annotation (self: Actor =>) means that this trait can only be used when mixed in with an Actor.
  */
 trait MessageMgt {
-  self: Actor with ChatMgt =>
+  self: Actor with ChatMgt ⇒
   protected var messages: List[String] = Nil
 
   /**
@@ -149,9 +189,22 @@ trait MessageMgt {
    * </ul>
    */
   protected def messageMgt: PartialFunction[Any, Unit] = {
-    //TODO implement
-    case _ =>
+    case Message(from, msg) =>
+      sessions.get(from) match {
+        case Some(actor) =>
+          actor ! Message(from,msg)
+          messages = (from + ": " + msg) :: messages
+        case None => None
+      }
 
+    case AnonymousMessage(msg) =>
+      messages = msg :: messages
+
+    case BroadcastMessage(from, msg) =>
+      for (actor <- sessions.values) actor ! Message(from, msg)
+
+    case ChatLog =>
+      sender ! Messages(messages)
   }
 }
 
@@ -161,7 +214,7 @@ trait MessageMgt {
  * The self-type annotation (self: Actor =>) means that this trait can only be used when mixed in with an Actor.
  */
 trait ChatMgt {
-  self: Actor =>
+  self: Actor ⇒
 
   protected var sessions = new HashMap[String, Actor]
 
@@ -173,9 +226,10 @@ trait ChatMgt {
    * </ul>
    */
   protected def chatMgt: PartialFunction[Any, Unit] = {
-    //TODO implement
-    case _ =>
-
+    case Add(who) =>
+      sessions.put(who.name, who)
+    case Remove(who) =>
+      sessions.remove(who)
   }
 
   protected def shutdown: Unit = {
